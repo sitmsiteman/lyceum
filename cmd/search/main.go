@@ -107,60 +107,81 @@ func FindLemmaIndexed(filePath string, offset int64, searchForm string) ([]Morph
 	return nil, fmt.Errorf("not found")
 }
 
-func lookupLSJ(xmlPath string, rawLemma string, lsjIndex map[string]int64) {
-	// 1. Clean and normalize the search word
+func lookupLSJ(xmlPath string, rawLemma string, lsjIndex map[string]int64, seenOffsets map[int64]bool) {
 	lemma := strings.Fields(rawLemma)[0]
 	strictKey := tlgcore.NormalizeStrict(lemma)
 	fuzzyKey := tlgcore.NormalizeFuzzy(lemma)
 
-	// 2. Determine the byte offset from the index
-	offset, found := lsjIndex[strictKey]
-	if !found {
-		// Fallback to fuzzy if strict fails
-		offset, found = lsjIndex[fuzzyKey]
+	var offsets []int64
+	localSeen := make(map[int64]bool)
+
+	addUnique := func(val int64) {
+		if !localSeen[val] {
+			offsets = append(offsets, val)
+			localSeen[val] = true
+		}
 	}
 
-	if !found {
-		for k, off := range lsjIndex {
-			if strings.HasPrefix(k, fuzzyKey) {
-				offset = off
-				found = true
-				break
+	// Check the base key (e.g., "legw")
+	if val, ok := lsjIndex[strictKey]; ok {
+		addUnique(val)
+	}
+
+	// Check numbered keys (e.g., "legw2", "legw3", ...)
+	for i := 2; ; i++ {
+		key := strictKey + strconv.Itoa(i)
+		val, ok := lsjIndex[key]
+		if !ok {
+			break
+		}
+		addUnique(val)
+	}
+	if len(offsets) == 0 {
+		if val, ok := lsjIndex[fuzzyKey]; ok {
+			addUnique(val)
+		} else {
+			// Prefix scan fallback
+			for k, off := range lsjIndex {
+				if strings.HasPrefix(k, fuzzyKey) {
+					addUnique(off)
+					break // Stop after first fuzzy match
+				}
 			}
 		}
 	}
 
-	if !found {
-		fmt.Printf("\n[LSJ] No entry found for '%s' (tried keys: %s, %s)\n", tlgcore.ToGreek(lemma), strictKey, fuzzyKey)
-		return
-	}
+	if len(offsets) > 0 {
+		f, err := os.Open(xmlPath)
+		if err != nil {
+			fmt.Println("Error opening LSJ file:", err)
+			return
+		}
+		defer f.Close()
 
-	// 3. Open file and jump directly to the offset
-	f, err := os.Open(xmlPath)
-	if err != nil {
-		fmt.Println("Error opening LSJ file:", err)
-		return
-	}
-	defer f.Close()
+		for _, offset := range offsets {
+			if seenOffsets[offset] {
+				continue
+			}
 
-	_, err = f.Seek(offset, 0)
-	if err != nil {
-		fmt.Println("Seek error:", err)
-		return
-	}
+			_, err = f.Seek(offset, 0)
+			if err != nil {
+				fmt.Println("Seek error:", err)
+				return
+			}
 
-	// 4. Decode ONLY the relevant entry
-	// We use a LimitedReader or just decode the next element to stop quickly
-	decoder := xml.NewDecoder(f)
-	var entry LSJEntry
-	err = decoder.Decode(&entry)
-	if err != nil {
-		fmt.Println("XML Decode error:", err)
-		return
-	}
+			decoder := xml.NewDecoder(f)
+			var entry LSJEntry
+			err = decoder.Decode(&entry)
+			if err != nil {
+				return
+			}
 
-	fmt.Printf("\n[STRICT MATCH FOUND: %s]\n", tlgcore.ToGreek(entry.Key))
-	fmt.Println(processSense(entry.Sense))
+			seenOffsets[offset] = true
+
+			fmt.Printf("\n[ENTRY: %s]\n", tlgcore.ToGreek(entry.Key))
+			fmt.Printf("%s\n",processSense(entry.Sense))
+		}
+	}
 }
 
 func LoadLSJIndex(path string) map[string]int64 {
@@ -235,6 +256,7 @@ func main() {
 	idtPath := flag.String("idt", "greek-analyses.idt", "idt file")
 	analPath := flag.String("a", "greek-analyses.txt", "analyses txt file")
 	lsjidtPath := flag.String("lsjidt", "lsj.idt", "LSJ idt file")
+	printdic := flag.Bool("dic", true, "print LSJ entries or not")
 
 	flag.Parse()
 
@@ -273,13 +295,17 @@ func main() {
 
 	// Output Morph and then LSJ
 
+	seenLSJEntries := make(map[int64]bool)
+
 	for _, r := range results {
-		// Clean display output
+		// 1. Print Morphology
 		lemmaDisplay := strings.Fields(r.Lemma)[0]
 		fmt.Printf("Greek: %s | Lemma: %s (%s)\n", tlgcore.ToGreek(searchWord), tlgcore.ToGreek(lemmaDisplay), r.Morphology)
-
-		// 2. Pass the index to lookupLSJ for instant results
-		lookupLSJ(*lsjPath, r.Lemma, lsjIndex)
 	}
-
+	if *printdic == true {
+		for _, r := range results {
+			lookupLSJ(*lsjPath, r.Lemma, lsjIndex, seenLSJEntries)
+		}
+	}
 }
+
