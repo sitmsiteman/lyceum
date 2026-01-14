@@ -1,0 +1,13 @@
+#!/bin/rc
+
+EXECROOT=$home/git/tlgread-go
+TLGROOT=$home/TLG/TLG-E
+PHIROOT=$home/TLG/PHI-5
+
+GRAN=$EXECROOT/dependencies/greek-analyses.txt
+GRANIDT=$EXECROOT/dependencies/greek-analyses.idt
+LSJ=$EXECROOT/dependencies/grc.lsj.xml
+LSJIDT=$EXECROOT/dependencies/lsj.idt
+
+$EXECROOT/bin/search -a $GRAN -idt $GRANIDT -lsj $LSJ -lsjidt $LSJIDT -w $1
+

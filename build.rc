@@ -1,0 +1,12 @@
+#!/bin/rc
+
+go build -o bin/indexer ./cmd/indexer
+go build -o bin/search ./cmd/search
+go build -o bin/tlgviewer ./cmd/tlgviewer
+go build -o bin/readauth ./cmd/readauth
+go build -o bin/lemmata ./cmd/lemmata
+
+cp scripts/plan9/* bin/
+
+cd dependencies && ../bin/indexer
+
