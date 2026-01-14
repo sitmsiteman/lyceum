@@ -1,0 +1,69 @@
+#!/usr/local/plan9/bin/rc
+
+EXECROOT=$HOME/git/tlgread-go
+TLGROOT=$HOME/TLG/TLG-E
+PHIROOT=$HOME/TLG/PHI-5
+
+GRAN=$EXECROOT/dependencies/greek-analyses.txt
+GRANIDT=$EXECROOT/dependencies/greek-analyses.idt
+LSJ=$EXECROOT/dependencies/grc.lsj.xml
+LSJIDT=$EXECROOT/dependencies/lsj.idt
+
+fn usage{
+	echo 'l [tlg,phi]'
+	echo 'tl tlgauthnumber'
+	echo 'pl phiauthnumber'
+	echo 'tr tlgauthnumber worknumber'
+	echo 'pr phiauthnumber worknumber'
+	echo 's greekword'
+	echo 'q: quit'
+}
+
+fn readauth{
+	if (~ $1 PHI)
+		$EXECROOT/bin/readauth -f $PHIROOT/authtab.dir
+	if not
+		$EXECROOT/bin/readauth -f $TLGROOT/authtab.dir
+}
+
+fn worklist{
+	if (~ $1 PHI)
+		$EXECROOT/bin/tlgviewer -f $PHIROOT/'lat'$2'.txt' -list
+	if not
+		$EXECROOT/bin/tlgviewer -f $TLGROOT/'tlg'$2'.txt' -list
+}
+
+fn readwork{
+	if (~ $1 PHI)
+		$EXECROOT/bin/tlgviewer -f $PHIROOT/'lat'$2'.txt' -w $3
+	if not
+		$EXECROOT/bin/tlgviewer -f $TLGROOT/'tlg'$2'.txt' -w $3
+}
+
+fn search{
+	$EXECROOT/bin/search -a $GRAN -idt $GRANIDT -lsj $LSJ -lsjidt $LSJIDT -w $1
+}
+
+
+while() {
+	echo -n '> '
+	n=`{read}
+	switch ($n(1)) {
+	case l
+		readauth $n(2)
+	case tl
+		worklist TLG $n(2)
+	case pl
+		worklist PHI $n(2)
+	case tr
+		readwork TLG $n(2) $n(3)
+	case pr
+		readwork PHI $n(2) $n(3)
+	case s
+		search $n(2)
+	case q
+		exit
+	case *
+		usage
+	}
+}
