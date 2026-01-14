@@ -56,7 +56,10 @@ Run `make all` and `make index`.
 
 ## Caveats & Bugs
 
-Only tested against Aristotle and Plato datasets.
+- TLG directory should have lowercase filenames (including extensions).
 
-Bekker pagination output may contain a leading "1.1." prefix.
+- Only tested against Aristotle and Plato datasets.
 
+- Bekker pagination output may contain a leading "1.1." prefix.
+
+- Some of the entries in Aristotle are skipped when use `readauth`.
