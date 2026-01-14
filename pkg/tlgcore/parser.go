@@ -22,10 +22,10 @@ type IDState struct {
 }
 
 type Parser struct {
-	File   *os.File
-	Levels map[string]*IDState
-	Buffer []byte
-	Pos    int
+	File        *os.File
+	Levels      map[string]*IDState
+	Buffer      []byte
+	Pos         int
 	IsLatinFile bool
 }
 
@@ -42,10 +42,10 @@ func NewParser(f *os.File) *Parser {
 }
 
 func (p *Parser) ProcessText(s string) string {
-    if p.IsLatinFile {
-        return ToLatin(s)
-    }
-    return ToGreek(s)
+	if p.IsLatinFile {
+		return ToLatin(s)
+	}
+	return ToGreek(s)
 }
 
 func (p *Parser) Run(targetWorkID string, listMode bool, idtTitles map[string]string) {
@@ -316,4 +316,3 @@ func (p *Parser) formatCitation() string {
 	}
 	return strings.Join(pts, ".")
 }
-
