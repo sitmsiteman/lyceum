@@ -92,7 +92,7 @@ func (p *Parser) Run(targetWorkID string, listMode bool, idtTitles map[string]st
 				}
 			} else {
 				if currentID == targetInt {
-					greek := ToGreek(text) // Use shared ToGreek
+					greek := ToGreek(text)
 					if strings.TrimSpace(greek) != "" {
 						cit := p.formatCitation()
 						fmt.Printf("%-10s %s\n", cit, greek)
@@ -214,7 +214,7 @@ func (p *Parser) resetLevels(lvl string) {
 }
 
 // normalizeID removes leading zeros from string IDs (e.g. "001" -> "1")
-func normalizeID(id string) string {
+func NormalizeID(id string) string {
 	i, err := strconv.Atoi(id)
 	if err == nil {
 		return strconv.Itoa(i)

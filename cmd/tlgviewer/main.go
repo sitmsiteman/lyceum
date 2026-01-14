@@ -12,14 +12,6 @@ import (
 	"tlgread/pkg/tlgcore"
 )
 
-func normalizeID(id string) string {
-	i, err := strconv.Atoi(id)
-	if err == nil {
-		return strconv.Itoa(i)
-	}
-	return id
-}
-
 func getTitlesFromIDT(path string) map[string]string {
 	m := make(map[string]string)
 	data, err := os.ReadFile(path)
@@ -101,7 +93,7 @@ func main() {
 	} else {
 		t := titles[*wID]
 		if t == "" {
-			t = titles[normalizeID(*wID)]
+			t = titles[tlgcore.NormalizeID(*wID)]
 		}
 		if t == "" {
 			t = "(Unknown Title)"
