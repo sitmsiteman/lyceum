@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"log"
 	"strings"
 )
@@ -19,7 +19,7 @@ func main() {
 	fPath := flag.String("f", "authtab.dir", "filename")
 	flag.Parse()
 
-	data, err := ioutil.ReadFile(*fPath)
+	data, err := os.ReadFile(*fPath)
 	if err != nil {
 		log.Fatal(err)
 	}

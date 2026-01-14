@@ -276,7 +276,7 @@ func main() {
 
 	var results []MorphResult
 	var err error
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		if idx-i < 0 {
 			break
 		}
