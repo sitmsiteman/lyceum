@@ -1,68 +1,102 @@
-# TLG Reader in Go
+# TLG Reader for Unix & Plan 9
 
 ## Features
 
-- Reads TLG files and `authtab.dir`.
-- Searches Greek words (Ancient Greek/Beta Code).
-- Performs morphological analysis (with `diogenes` dependencies).
+- Reads TLG/PHI files and `authtab.dir` (sourced from legacy TLG CD-ROMs).
+- Searches Greek words in LSJ (supports Ancient Greek and Beta Code).
+- Searches Latin words in Lewis & Short.
+- Performs morphological analysis (using `diogenes` data).
 
 ## Usage
 
-To browse `authtab.dir`, use:
+It is recommended to use the helper scripts located in `bin/`.
 
-`readauth -f path/to/authtab.dir`
+### Browsing Files
 
-To list available works, use:
+To browse `authtab.dir`:
 
-`tlgviewer -f path/to/tlg[0000-9999].txt -list`
+    readauth -f path/to/authtab.dir
 
-To read a full text, use:
+To list available works:
 
-`tlgviewer -f path/to/tlg[0000-9999].txt -w n`
+    tlgviewer -f path/to/tlg[0000-9999].txt -list
 
-If you need a pager, you can use `more` or `less`.
+To read a full text (use `more` or `less` for paging on Unix):
 
-To search for Greek words, use:
+    tlgviewer -f path/to/tlg[0000-9999].txt -w n
 
-`search -w γένος -lsj grc.lsj.xml -lsjidt lsj.idt -idt greek-analyses.idt -a greek-analyses.txt`
+### Searching Dictionaries
 
-or
+To search for Greek words:
 
-`search -w γένος`
+    search -w γένος -dic grc.lsj.xml -dicidt lsj.idt \
+       -idt greek-analyses.idt -a greek-analyses.txt
+
+    search -w γένος
+
+Beta Code is also supported:
+
+    search -w ge/nos
+
+To search for Latin words:
+
+    search -lat -w logos -dic lat.ls.perseus-eng1.xml -dicidt ls.idt \
+        -idt latin-analyses.idt -a latin-analyses.txt
+
+    search -lat -w logos
+
+For full usage details, use the `--help` flag.
+
+### Plumber Integration
+
+Add the following rule to your `lib/plumbing`.
+
+    type is text
+    data matches '([Ά-ώἀ-ῼ]+)'
+    plumb to none
+    plumb start window rc -c '/bin/grdic '$0'; hold'
 
 ## Dependencies
 
-This project relies on data files from `diogenes`.
+This project relies on prebuilt data files from [Diogenes](https://d.iogen.es/d) and the Perseus Project.
 
-To use `search`, you need:
+To use `search`, you need the following files (obtainable from the prebuilt `diogenes` package):
 
-```
-dependencies/grc.lsj.xml
-dependencies/greek-analyses.idt
-dependencies/greek-analyses.txt
-```
+- `dependencies/grc.lsj.xml`
+- `dependencies/lat.ls.perseus-eng1.xml`
+- `dependencies/greek-analyses.idt`
+- `dependencies/greek-analyses.txt`
+- `dependencies/latin-analyses.idt`
+- `dependencies/latin-analyses.txt`
 
-For morphology, you only need: (WIP)
+For morphology analysis only, you need:
 
-```
-dependencies/greek-lemmata.txt
-```
-
-For faster search speeds, run `make index` before using `search`.
+- `dependencies/greek-lemmata.txt`
+- `dependencies/latin-lemmata.txt`
 
 ## Build
 
 ### Unix
-Run `make all` and `make index`.
+
+Run `make`.
 
 ### 9front
+
 Run `build.rc`.
 
 ## Caveats & Bugs
 
-- TLG files should have lowercase filenames (including extensions).
+- TLG/PHI files must have lowercase filenames (including extensions).
+- Test coverage is currently limited.
+- Citations may occasionally contain a redundant "1.1." prefix.
 
-- Only tested against Aristotle and Plato datasets.
+## TODO
 
-- Bekker pagination output may contain a leading "1.1." prefix.
+- Integration with `acme`.
+
+## Links
+
+- [Diogenes Desktop](https://d.iogen.es/d)
+- [Perseus Project](https://www.perseus.tufts.edu/)
+- [Source Repository](https://github.com/sitmsiteman/tlgread-go)
 
