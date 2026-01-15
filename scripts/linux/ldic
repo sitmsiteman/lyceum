@@ -1,0 +1,10 @@
+#!/bin/sh
+
+EXECROOT=$HOME/git/tlgread-go
+
+LAAN=$EXECROOT/dependencies/latin-analyses.txt
+LAANIDT=$EXECROOT/dependencies/latin-analyses.idt
+LS=$EXECROOT/dependencies/lat.ls.perseus-eng1.xml
+LSIDT=$EXECROOT/dependencies/ls.idt
+
+$EXECROOT/bin/search -a $LAAN -idt $LAANIDT -dic $LS -dicidt $LSIDT -lat -w $*

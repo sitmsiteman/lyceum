@@ -4,18 +4,38 @@ EXECROOT=$HOME/git/tlgread-go
 TLGROOT=$HOME/TLG/TLG-E
 PHIROOT=$HOME/TLG/PHI-5
 
+GRLM=$EXECROOT/dependencies/greek-lemmata.txt
 GRAN=$EXECROOT/dependencies/greek-analyses.txt
 GRANIDT=$EXECROOT/dependencies/greek-analyses.idt
 LSJ=$EXECROOT/dependencies/grc.lsj.xml
 LSJIDT=$EXECROOT/dependencies/lsj.idt
 
+LALM=$EXECROOT/dependencies/latin-lemmata.txt
+LAAN=$EXECROOT/dependencies/latin-analyses.txt
+LAANIDT=$EXECROOT/dependencies/latin-analyses.idt
+LS=$EXECROOT/dependencies/lat.ls.perseus-eng1.xml
+LSIDT=$EXECROOT/dependencies/ls.idt
+
+
 fn usage{
 	echo 'l [tlg,phi]'
+	echo '	print authtab.dir infos'
 	echo 'tl tlgauthnumber'
+	echo '	print works of given author in TLG'
 	echo 'pl phiauthnumber'
+	echo '	print works of given author in PHI-5'
 	echo 'tr tlgauthnumber worknumber'
+	echo '	print text in TLG'
 	echo 'pr phiauthnumber worknumber'
-	echo 's greekword'
+	echo '	print text in PHI'
+	echo 'gs greekword'
+	echo '	search greek word in LSJ'
+	echo 'gl greekword'
+	echo '	search inflections of given greek word'
+	echo 'ls latinword'
+	echo '	search latin word in L-S'
+	echo 'll greekword'
+	echo '	search inflections of given latin word'
 	echo 'q: quit'
 }
 
@@ -41,9 +61,18 @@ fn readwork{
 }
 
 fn search{
-	$EXECROOT/bin/search -a $GRAN -idt $GRANIDT -lsj $LSJ -lsjidt $LSJIDT -w $1
+	if (~ $1 LAT)
+		$EXECROOT/bin/search -a $LAAN -idt $LAANIDT -dic $LS -dicidt $LSIDT -lat -w $2
+	if not
+		$EXECROOT/bin/search -a $GRAN -idt $GRANIDT -dic $LSJ -dicidt $LSJIDT -w $2
 }
 
+fn lemmata{
+	if (~ $1 LAT)
+		$EXECROOT/bin/lemmata -f $LALM -l -w $2
+	if not
+		$EXECROOT/bin/lemmata -f $GRLM -w $2
+}
 
 while() {
 	echo -n '> '
@@ -59,8 +88,14 @@ while() {
 		readwork TLG $n(2) $n(3)
 	case pr
 		readwork PHI $n(2) $n(3)
-	case s
-		search $n(2)
+	case gs
+		search GRC $n(2)
+	case ls
+		search LAT $n(2)
+	case gl
+		lemmata GRC $n(2)
+	case ll
+		lemmata LAT $n(2)
 	case q
 		exit
 	case *

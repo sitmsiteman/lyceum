@@ -10,5 +10,5 @@ go build -o bin/lemmata ./cmd/lemmata
 echo 'copying scripts'
 cp scripts/plan9/* bin/
 
-cd dependencies && ../bin/indexer
+cd dependencies && ../bin/indexer -f grc.lsj.xml -o lsj.idt && ../bin/indexer -f lat.ls.perseus-eng1.xml -o ls.idt
 

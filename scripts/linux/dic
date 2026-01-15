@@ -1,3 +1,0 @@
-#!/bin/sh
-
-bin/search -a dependencies/greek-analyses.txt -idt dependencies/greek-analyses.idt -lsj dependencies/grc.lsj.xml -lsjidt dependencies/lsj.idt -w $*

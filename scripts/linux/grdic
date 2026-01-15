@@ -1,6 +1,6 @@
-#!/bin/rc
+#!/bin/sh
 
-EXECROOT=$home/git/tlgread-go
+EXECROOT=$HOME/git/tlgread-go
 
 GRAN=$EXECROOT/dependencies/greek-analyses.txt
 GRANIDT=$EXECROOT/dependencies/greek-analyses.idt
