@@ -56,6 +56,24 @@ Add the following rule to your `lib/plumbing`.
     plumb to none
     plumb start window rc -c '/bin/grdic '$0'; hold'
 
+### Acme Integration
+
+Use `TLG9` for acme integration.
+
+Add the folling rule to your `lib/plumbing`.
+
+    # Open TLG worklist in acme
+    type is text
+    data matches 'TLG[0-9]+'
+    plumb to none
+    plumb start window /bin/LHelper $0
+
+    # Open TLG text in acme
+    type is text
+    data matches 'ID:([0-9]+)'
+    plumb to none
+    plumb start window /bin/WHelper $1
+
 ## Dependencies
 
 This project relies on prebuilt data files from [Diogenes](https://d.iogen.es/d) and the Perseus Project.
@@ -89,10 +107,6 @@ Run `build.rc`.
 - TLG/PHI files must have lowercase filenames (including extensions).
 - Test coverage is currently limited.
 - Citations may occasionally contain a redundant "1.1." prefix.
-
-## TODO
-
-- Integration with `acme`.
 
 ## Links
 

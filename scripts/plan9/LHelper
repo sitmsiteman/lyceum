@@ -1,0 +1,10 @@
+#!/bin/rc
+
+tlgdir=$home/TLG/TLG-E
+execdir=$home/git/tlgread-go
+text=`{echo $1 | tr A-Z a-z}
+
+$execdir/bin/tlgviewer -f $tlgdir/$text'.txt' -list | plumb -i -d edit -a filename'='$tlgdir/$text.txt
+
+echo $tlgdir/$text.txt > /tmp/Twork
+

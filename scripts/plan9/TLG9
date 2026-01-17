@@ -1,0 +1,17 @@
+#!/bin/rc
+
+# Open Authtab
+
+execdir=$home/git/tlgread-go/bin
+tlgdir=$home/TLG/TLG-E
+
+cd /mnt/acme/new
+echo name AUTHTAB >ctl
+echo nomenu >ctl
+echo nomark >ctl
+echo noscroll >ctl
+
+$execdir/readauth -f $tlgdir/authtab.dir > body
+
+echo clean >ctl
+
