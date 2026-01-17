@@ -214,7 +214,7 @@ func handleMarkupText(runes []rune, start int, out *bytes.Buffer, isLat bool, in
 
 	switch command {
 	case "{":
-		out.WriteString("Title: ")
+		out.WriteString(" ")
 	case "{70": // TLG Editorial Text
 		isLatin = true
 	default:
