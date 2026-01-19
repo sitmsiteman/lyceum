@@ -1,0 +1,23 @@
+#!/bin/sh
+
+if [ -d dependencies ]; then
+	echo "dependencies directory already exists"
+	exit
+fi
+mkdir dependencies
+cd dependencies
+curl -OL https://github.com/sitmsiteman/diogenes-prebuilt-data/raw/refs/heads/master/prebuilt-data.tar.xz
+
+tar xf prebuilt-data.tar.xz
+
+mv dependencies/data/grc.lsj.xml .
+mv dependencies/data/greek-analyses.idt .
+mv dependencies/data/greek-analyses.txt .
+mv dependencies/data/greek-lemmata.txt .
+mv dependencies/data/latin-analyses.idt .
+mv dependencies/data/latin-analyses.txt .
+mv dependencies/data/latin-lemmata.txt .
+mv dependencies/data/lat.ls.perseus-eng1.xml .
+
+rm -f prebuilt-data.tar.xz
+rm -rf dependencies

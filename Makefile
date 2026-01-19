@@ -7,6 +7,7 @@ all:
 	go build -o bin/readauth ./cmd/readauth
 	go build -o bin/lemmata ./cmd/lemmata
 	cp scripts/linux/* bin/
+	./fetchdep
 	cd dependencies && ../bin/indexer -f grc.lsj.xml -o lsj.idt && ../bin/indexer -f lat.ls.perseus-eng1.xml -o ls.idt
 
 index:
