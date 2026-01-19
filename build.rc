@@ -11,8 +11,30 @@ go build -o bin/tlgviewer ./cmd/tlgviewer
 go build -o bin/readauth ./cmd/readauth
 go build -o bin/lemmata ./cmd/lemmata
 
-echo 'copying scripts'
+echo 'copying scripts...'
 cp scripts/plan9/* bin/
+
+if (! test -d dependencies) {
+	echo 'fetch dependencies..'
+	hget https://raw.githubusercontent.com/sitmsiteman/diogenes-prebuilt-data/refs/heads/master/prebuilt-data.tar.xz > prebuilt.data.tar.xz
+
+	echo 'get unxz..'
+	git/clone https://github.com/tukaani-project/xz-embedded
+	cp unxzmk xz-embedded/mkfile
+	cd xz-embedded;mk;cd ..
+	cat prebuilt.data.tar.xz | ./xz-embedded/6.out | tar x >[2=]
+
+	mv dependencies/data/grc.lsj.xml dependencies/
+	mv dependencies/data/greek-analyses.txt dependencies/
+	mv dependencies/data/greek-analyses.idt dependencies/
+	mv dependencies/data/greek-lemmata.txt dependencies/
+	mv dependencies/data/lat.ls.perseus-eng1.xml dependencies/
+	mv dependencies/data/latin-analyses.idt dependencies/
+	mv dependencies/data/latin-lemmata.txt dependencies/
+	rm -rf dependencies/data
+	rm -rf dependencies/._data
+	rm -f prebuilt.data.tar.xz
+}
 
 cd dependencies && ../bin/indexer -f grc.lsj.xml -o lsj.idt && ../bin/indexer -f lat.ls.perseus-eng1.xml -o ls.idt
 
