@@ -8,6 +8,7 @@ CFLAGS=-FVw -DXZ_DEC_CONCATENATED -DXZ_USE_CRC64 -DXZ_USE_CRC64 \
 IFLAGS=-Ilinux/include -Ilinux/include/linux -Iuserspace
 
 TARG=unxz
+BIN=.
 OFILES=\
 	linux/lib/xz/xz_crc32.$O\
 	linux/lib/xz/xz_crc64.$O\

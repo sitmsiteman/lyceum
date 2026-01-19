@@ -22,7 +22,7 @@ if (! test -d dependencies) {
 	git/clone https://github.com/tukaani-project/xz-embedded
 	cp unxzmk xz-embedded/mkfile
 	cd xz-embedded;mk;cd ..
-	cat prebuilt.data.tar.xz | ./xz-embedded/6.out | tar x >[2=]
+	cat prebuilt.data.tar.xz | ./xz-embedded/unxz | tar x >[2=]
 
 	mv dependencies/data/grc.lsj.xml dependencies/
 	mv dependencies/data/greek-analyses.txt dependencies/
