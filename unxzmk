@@ -1,0 +1,32 @@
+# http://okturing.com/src/22224/body
+</$objtype/mkfile
+
+CFLAGS=-FVw -DXZ_DEC_CONCATENATED -DXZ_USE_CRC64 -DXZ_USE_CRC64 \
+	-DXZ_DEC_X86 -DXZ_DEC_POWERPC -DXZ_DEC_IA64 -DXZ_DEC_ARM \
+	-DXZ_DEC_ARMTHUMB -DXZ_DEC_ARM64 -DXZ_DEC_SPARC -DXZ_DEC_RISCV
+
+IFLAGS=-Ilinux/include -Ilinux/include/linux -Iuserspace
+
+TARG=unxz
+OFILES=\
+	linux/lib/xz/xz_crc32.$O\
+	linux/lib/xz/xz_crc64.$O\
+	linux/lib/xz/xz_dec_bcj.$O\
+	linux/lib/xz/xz_dec_lzma2.$O\
+	linux/lib/xz/xz_dec_stream.$O\
+	userspace/xzminidec.$O\
+
+HFILEs=\
+	linux/include/linux/decompress/unxz.h\
+	linux/include/linux/xz.h\
+	linux/lib/xz/xz_lzma2.h\
+	linux/lib/xz/xz_private.h\
+	linux/lib/xz/xz_stream.h\
+	userspace/xz_config.h\
+
+CLEANFILES=$OFILES
+
+</sys/src/cmd/mkone
+
+%.$O:	%.c $HFILES
+	pcc $CFLAGS $IFLAGS -c -o $target $stem.c
