@@ -15,35 +15,39 @@ It is recommended to use the helper scripts located in `bin/`.
 
 To browse `authtab.dir`:
 
-    readauth -f path/to/authtab.dir
+	% readauth -f path/to/authtab.dir
 
 To list available works:
 
-    tlgviewer -f path/to/tlg[0000-9999].txt -list
+	% tlgviewer -f path/to/tlg[0000-9999].txt -list
 
 To read a full text (use `more` or `less` for paging on Unix. On Plan 9, use `p`.):
 
-    tlgviewer -f path/to/tlg[0000-9999].txt -w n
+	% tlgviewer -f path/to/tlg[0000-9999].txt -w n
 
 ### Searching Dictionaries
 
 To search for Greek words:
 
-    search -w γένος -dic grc.lsj.xml -dicidt lsj.idt \
-       -idt greek-analyses.idt -a greek-analyses.txt
+	% search -w γένος -dic grc.lsj.xml -dicidt lsj.idt \
+		-idt greek-analyses.idt -a greek-analyses.txt
 
-    search -w γένος
+ 
+
+	% search -w γένος
 
 Beta Code is also supported:
 
-    search -w ge/nos
+	% search -w ge/nos
 
 To search for Latin words:
 
-    search -lat -w logos -dic lat.ls.perseus-eng1.xml -dicidt ls.idt \
+	% search -lat -w logos -dic lat.ls.perseus-eng1.xml -dicidt ls.idt \
         -idt latin-analyses.idt -a latin-analyses.txt
 
-    search -lat -w logos
+ 
+
+	% search -lat -w logos
 
 For full usage details, use the `--help` flag.
 
@@ -51,10 +55,10 @@ For full usage details, use the `--help` flag.
 
 Add the following rule to your `lib/plumbing`.
 
-    type is text
-    data matches '([Ά-ώἀ-ῼ]+)'
-    plumb to none
-    plumb start window rc -c '/bin/grdic ''$1''; hold'
+	type is text
+	data matches '([Ά-ώἀ-ῼ]+)'
+	plumb to none
+	plumb start window rc -c '/bin/grdic ''$1''; hold'
 
 ### Acme Integration
 
@@ -62,18 +66,18 @@ Use `TLG9` for acme integration.
 
 Add the folling rule to your `lib/plumbing`.
 
-    # Open TLG worklist in acme
-    type is text
-    data matches 'TLG[0-9]+'
-    plumb to none
-    plumb start window /bin/LHelper $0
+	# Open TLG worklist in acme
+	type is text
+	data matches 'TLG[0-9]+'
+	plumb to none
+	plumb start window /bin/LHelper $0
 
 
-    # Open TLG text in acme
-    type is text
-    data matches 'ID:([0-9]+)'
-    plumb to none
-    plumb start window /bin/WHelper $1
+	# Open TLG text in acme
+	type is text
+	data matches 'ID:([0-9]+)'
+	plumb to none
+	plumb start window /bin/WHelper $1
 
 ## Dependencies
 
@@ -97,8 +101,8 @@ Run `build.rc`.
 
 ## Caveats & Bugs
 
+- Plan9/Unix scripts contain hard-coded paths.
 - TLG/PHI files must have lowercase filenames (including extensions).
-- Citations may occasionally contain a redundant "1.1." prefix.
 
 ## Links
 
