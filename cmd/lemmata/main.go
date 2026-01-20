@@ -65,6 +65,8 @@ func main() {
 		}
 	}
 
+	searchWord = tlgcore.NormalizeBetaCode(searchWord)
+
 	info, err := findForms(filePath, searchWord)
 	if err != nil {
 		fmt.Println(err)

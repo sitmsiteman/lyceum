@@ -281,6 +281,8 @@ func main() {
 		}
 	}
 
+	searchWord = tlgcore.NormalizeBetaCode(searchWord)
+
 	index, keys, _ := LoadIndex(*idtPath)
 	idx := sort.SearchStrings(keys, searchWord)
 	if idx > 0 {

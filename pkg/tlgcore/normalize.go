@@ -30,3 +30,7 @@ func NormalizeFuzzy(s string) string {
 	vowelFuzzer := strings.NewReplacer("e", "a", "h", "a", "o", "a", "w", "a")
 	return vowelFuzzer.Replace(s)
 }
+
+func NormalizeBetaCode(s string) string {
+	return strings.ReplaceAll(s, "\\", "/")
+}
