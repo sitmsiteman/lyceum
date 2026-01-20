@@ -32,7 +32,7 @@ To search for Greek words:
 	% search -w γένος -dic grc.lsj.xml -dicidt lsj.idt \
 		-idt greek-analyses.idt -a greek-analyses.txt
 
- 
+or  
 
 	% search -w γένος
 
@@ -45,7 +45,7 @@ To search for Latin words:
 	% search -lat -w logos -dic lat.ls.perseus-eng1.xml -dicidt ls.idt \
         -idt latin-analyses.idt -a latin-analyses.txt
 
- 
+or
 
 	% search -lat -w logos
 
@@ -71,7 +71,6 @@ Add the folling rule to your `lib/plumbing`.
 	data matches 'TLG[0-9]+'
 	plumb to none
 	plumb start window /bin/LHelper $0
-
 
 	# Open TLG text in acme
 	type is text
