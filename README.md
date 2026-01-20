@@ -31,7 +31,7 @@ To search for Greek words:
 
     search -w γένος -dic grc.lsj.xml -dicidt lsj.idt \
        -idt greek-analyses.idt -a greek-analyses.txt
- 
+
     search -w γένος
 
 Beta Code is also supported:
@@ -42,7 +42,7 @@ To search for Latin words:
 
     search -lat -w logos -dic lat.ls.perseus-eng1.xml -dicidt ls.idt \
         -idt latin-analyses.idt -a latin-analyses.txt
- 
+
     search -lat -w logos
 
 For full usage details, use the `--help` flag.
@@ -54,7 +54,7 @@ Add the following rule to your `lib/plumbing`.
     type is text
     data matches '([Ά-ώἀ-ῼ]+)'
     plumb to none
-    plumb start window rc -c '/bin/grdic '$0'; hold'
+    plumb start window rc -c '/bin/grdic ''$1''; hold'
 
 ### Acme Integration
 
@@ -68,7 +68,7 @@ Add the folling rule to your `lib/plumbing`.
     plumb to none
     plumb start window /bin/LHelper $0
 
- 
+
     # Open TLG text in acme
     type is text
     data matches 'ID:([0-9]+)'
