@@ -249,4 +249,3 @@ func sortBD(d []string) {
 func sortUD(d []rune) {
 	sort.Slice(d, func(i, j int) bool { return GetPriorDia(string(d[i])) < GetPriorDia(string(d[j])) })
 }
-
