@@ -416,7 +416,7 @@ func ToGreek(s string) string {
 	}
 
 	res := out.String()
-	res = regexp.MustCompile(`σ(\s|[[:punct:]]|$)`).ReplaceAllString(res, "ς$1")
+	res = regexp.MustCompile(`σ(\s|[[:punct:],·]|$)`).ReplaceAllString(res, "ς$1")
 	res = NormalizeGreek(res)
 	return res
 }
