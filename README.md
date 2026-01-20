@@ -58,7 +58,7 @@ Add the following rule to your `lib/plumbing`.
 	type is text
 	data matches '([Ά-ώἀ-ῼ]+)'
 	plumb to none
-	plumb start window rc -c '/bin/grdic ''$1''; hold'
+	plumb start window /bin/grdic ''$1''; hold
 
 ### Acme Integration
 
