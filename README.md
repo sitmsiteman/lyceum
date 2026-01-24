@@ -9,7 +9,7 @@
 
 ## Usage
 
-It is recommended to use `lyceum` with `acme(1).
+It is recommended to use `lyceum` with `acme(1)`.
 
 There is also a primitive frontend, `lyceum/reader`, included in the Plan 9 installation.
 
