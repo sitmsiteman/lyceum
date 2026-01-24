@@ -40,23 +40,20 @@ if (! test -d dependencies) {
 	rm -f prebuilt.data.tar.xz
 }
 
-cd dependencies && ../bin/indexer -f grc.lsj.xml -o lsj.idt && ../bin/indexer -f lat.ls.perseus-eng1.xml -o ls.idt
+cd dependencies && ../bin/indexer -f grc.lsj.xml -o lsj.idt && ../bin/indexer -f lat.ls.perseus-eng1.xml -o ls.idt && cd ..
 
 echo 'copying executables..'
 dircp bin /$objtype/bin/lyceum
 
 mkdir -p /sys/lib/lyceum/dependencies
-mkdir -p /sys/lib/lyceum/data
 
 echo 'installing dependencies..'
 
 dircp dependencies /sys/lib/lyceum/dependencies
 
-if ( -d TLG ) {
+if ( test -d TLG )
 	dircp TLG /sys/lib/lyceum/
-} else {
+if not
 	echo 'Manually move the TLG-E, PHI-5, etc. directories to /sys/lib/lyceum'
-}
 
 echo 'done'
-
