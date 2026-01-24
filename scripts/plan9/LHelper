@@ -1,6 +1,6 @@
 #!/bin/rc
 
-$TLGDIR=/sys/lib/lyceum/TLG-E
+TLGDIR=/sys/lib/lyceum/TLG-E
 text=`{echo $1 | tr A-Z a-z}
 
 /bin/lyceum/tlgviewer -f $TLGDIR/$text'.txt' -list | plumb -i -d edit -a filename'='$TLGDIR/$text.txt
