@@ -3,7 +3,6 @@
 TLGDIR=/sys/lib/lyceum/TLG-E
 text=`{echo $1 | tr A-Z a-z}
 
-/bin/lyceum/tlgviewer -f $TLGDIR/$text'.txt' -list | plumb -i -d edit -a filename'='$TLGDIR/$text.txt
+/bin/lyceum/tlgviewer -f $TLGDIR/$text'.txt' -list | plumb -i -d edit -a filename'='$TLGDIR/$text
 
-echo $TLGDIR/$text.txt > /tmp/Twork
-
+echo $TLGDIR/$text > /tmp/Twork

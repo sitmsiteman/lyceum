@@ -2,4 +2,4 @@
 
 twork=`{cat /tmp/Twork}
 
-/bin/lyceum/tlgviewer -f $twork -w $1 | plumb -i -d edit -a filename'='$twork/$1
+/bin/lyceum/tlgviewer -f $twork'.txt' -w $1 | plumb -i -d edit -a filename'='$twork/$1
