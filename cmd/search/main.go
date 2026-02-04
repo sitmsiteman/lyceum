@@ -206,10 +206,8 @@ func LoadLSJIndex(path string) map[string]int64 {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := scanner.Text()
-		// Split by ' => ' which is what our indexer uses
 		parts := strings.Split(line, " => ")
 		if len(parts) == 2 {
-			// Clean the key: remove surrounding single quotes
 			key := strings.Trim(parts[0], "'")
 			offset, _ := strconv.ParseInt(parts[1], 10, 64)
 			index[key] = offset
@@ -283,22 +281,36 @@ func main() {
 
 	searchWord = tlgcore.NormalizeBetaCode(searchWord)
 
-	index, keys, _ := LoadIndex(*idtPath)
-	idx := sort.SearchStrings(keys, searchWord)
-	if idx > 0 {
-		idx -= 1
+	index, keys, err := LoadIndex(*idtPath)
+	if err != nil {
+		log.Fatalf("Failed to load index: %v", err)
 	}
 
-	var results []MorphResult
-	var err error
-	for i := range 3 {
-		if idx-i < 0 {
-			break
+	performSearch := func(query string) ([]MorphResult, error) {
+		idx := sort.SearchStrings(keys, query)
+		if idx > 0 {
+			idx -= 1
 		}
-		results, err = FindLemmaIndexed(*analPath, index[keys[idx-i]], searchWord)
-		if err == nil {
-			break
+
+		var res []MorphResult
+		var e error
+		for i := range 3 {
+			if idx-i < 0 {
+				break
+			}
+			res, e = FindLemmaIndexed(*analPath, index[keys[idx-i]], query)
+			if e == nil {
+				return res, nil
+			}
 		}
+		return nil, fmt.Errorf("not found")
+	}
+
+	results, err := performSearch(searchWord)
+
+	if err != nil && strings.Contains(searchWord, "*") {
+		lowerWord := tlgcore.BetaToLower(searchWord)
+		results, err = performSearch(lowerWord)
 	}
 
 	if err != nil {
@@ -313,9 +325,9 @@ func main() {
 		// 1. Print Morphology
 		lemmaDisplay := strings.Fields(r.Lemma)[0]
 		if !*isLatin {
-			fmt.Printf("Greek: %s | Lemma: %s (%s)\n", tlgcore.ToGreek(searchWord), tlgcore.ToGreek(lemmaDisplay), r.Morphology)
+			fmt.Printf("Greek: %s | Lemma: %s (%s)\n", tlgcore.ToGreek(r.Form), tlgcore.ToGreek(lemmaDisplay), r.Morphology)
 		} else {
-			fmt.Printf("Latin: %s | Lemma: %s (%s)\n", searchWord, lemmaDisplay, r.Morphology)
+			fmt.Printf("Latin: %s | Lemma: %s (%s)\n", r.Form, lemmaDisplay, r.Morphology)
 		}
 	}
 	if *printdic == true {

@@ -540,7 +540,7 @@ func ToBetaCode(s string) string {
 	var out strings.Builder
 	for _, r := range s {
 		if val, ok := AlphaBase[r]; ok {
-			if (r == 'ς') {
+			if r == 'ς' {
 				out.WriteString("s")
 				continue
 			}
@@ -548,6 +548,41 @@ func ToBetaCode(s string) string {
 		} else {
 			out.WriteRune(r)
 		}
+	}
+	return out.String()
+}
+
+func BetaToLower(s string) string {
+	runes := []rune(s)
+	var out strings.Builder
+
+	for i := 0; i < len(runes); i++ {
+		if runes[i] == '*' {
+			i++
+			if i >= len(runes) {
+				break
+			}
+			var diacritics []rune
+			for i < len(runes) {
+				r := runes[i]
+				if _, ok := Diacritics[r]; ok {
+					diacritics = append(diacritics, r)
+					i++
+				} else {
+					break
+				}
+			}
+
+			if i < len(runes) {
+				letter := runes[i]
+				out.WriteRune(letter)
+				for _, d := range diacritics {
+					out.WriteRune(d)
+				}
+			}
+			continue
+		}
+		out.WriteRune(runes[i])
 	}
 	return out.String()
 }
