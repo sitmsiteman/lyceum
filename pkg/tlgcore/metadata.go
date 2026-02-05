@@ -108,13 +108,13 @@ func ReadIDT(path string) (map[string]*WorkMetadata, error) {
 			currentWork = nil
 
 		case 2: // New Work
-			if pos+4 > len(data) { 
-				break 
+			if pos+4 > len(data) {
+				break
 			}
 			pos += 4
 			idBytes := consumeID()
 
-					if len(idBytes) == 0 {
+			if len(idBytes) == 0 {
 				lastWorkIDInt++
 				lastWorkIDStr = ""
 			} else {
@@ -125,9 +125,11 @@ func ReadIDT(path string) (map[string]*WorkMetadata, error) {
 			if lastWorkIDInt != 0 {
 				idStr = strconv.Itoa(lastWorkIDInt) + lastWorkIDStr
 			}
-			
+
 			if idStr == "" || idStr == "0" {
-				if lastWorkIDInt == 0 { lastWorkIDInt = 1 }
+				if lastWorkIDInt == 0 {
+					lastWorkIDInt = 1
+				}
 				idStr = strconv.Itoa(lastWorkIDInt)
 			}
 
@@ -163,7 +165,7 @@ func ReadIDT(path string) (map[string]*WorkMetadata, error) {
 					currentWork.Title = cleanString(str)
 				}
 			}
-	
+
 		case 17: // Citations
 			subtype := data[pos]
 			pos += 2
@@ -276,18 +278,18 @@ func DecodeWorkID(prevInt int, prevStr string, b []byte) (int, string) {
 			hasStr = true
 		}
 
-			if dInt == -1 {
-				currInt++
+		if dInt == -1 {
+			currInt++
+			currStr = ""
+		} else if dInt != -999 {
+			currInt = dInt
+			if !hasStr {
 				currStr = ""
-			} else if dInt != -999 {
-				currInt = dInt
-				if !hasStr {
-					currStr = ""
-				}
 			}
-			if hasStr {
-				currStr = dStr
-			}
+		}
+		if hasStr {
+			currStr = dStr
+		}
 	}
 	return currInt, currStr
 }
