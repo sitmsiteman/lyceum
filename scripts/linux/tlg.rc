@@ -1,6 +1,6 @@
 #!/usr/local/plan9/bin/rc
 
-EXECROOT=$HOME/git/tlgread-go
+EXECROOT=$HOME/git/lyceum
 TLGROOT=$HOME/TLG/TLG-E
 PHIROOT=$HOME/TLG/PHI-5
 

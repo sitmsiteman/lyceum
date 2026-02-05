@@ -29,6 +29,9 @@ func main() {
 	dir, base := filepath.Split(*fPath)
 	tlgID := strings.TrimSuffix(base, filepath.Ext(base))
 
+	pathC1 := filepath.Join(dir, "doccan1.txt")
+	//pathC2 := filepath.Join(dir, "doccan2.txt")
+
 	idtPath := filepath.Join(dir, tlgID+".idt")
 	idtData, err := tlgcore.ReadIDT(idtPath)
 
@@ -52,6 +55,26 @@ func main() {
 	} else {
 		fmt.Printf("Warning: Could not read author table: %v\n", err)
 	}
+
+	numericID := tlgID
+	if strings.HasPrefix(strings.ToUpper(tlgID), "TLG") {
+		numericID = tlgID[3:]
+	}
+
+	var biblioText string
+	//	var metaFields []tlgcore.CanonField
+
+	if pathC1 != "" {
+		biblioText, err = tlgcore.GetBiblioFromCanon(pathC1, numericID, *wID)
+	}
+
+	/*	if pathC2 != "" {
+			metaFields, err = tlgcore.GetMetadataFromCanonDB(pathC2, numericID, *wID)
+			if err != nil {
+				fmt.Printf("Warning: Failed to read doccan2 file %s: %v\n", pathC2, err)
+			}
+		}
+	*/
 
 	p := tlgcore.NewParser(f)
 	p.IDTData = idtData
@@ -79,6 +102,37 @@ func main() {
 
 	} else {
 		cleanWID := tlgcore.NormalizeID(*wID)
+
+		fmt.Println("========================================")
+
+		if biblioText != "" {
+			fmt.Println(">>> Bibliography")
+			fmt.Println(biblioText)
+			fmt.Println("")
+		}
+
+		/*
+			if len(metaFields) > 0 {
+				fmt.Println(">>> Database Metadata")
+				for _, field := range metaFields {
+					if field.Tag == "---" {
+						fmt.Printf("\n--- %s ---\n", field.Value)
+					} else {
+						fmt.Printf("%-15s [%s]: %s\n", field.Label, field.Tag, field.Value)
+					}
+				}
+				fmt.Println("")
+			}
+
+			if biblioText == "" && len(metaFields) == 0 {
+				fmt.Println("(No Bibliography or Metadata found in Canon files)")
+			}
+		*/
+		if biblioText == "" {
+			fmt.Println("(No Bibliography data found)")
+		}
+
+		fmt.Println("========================================")
 
 		title := "(Unknown Title)"
 		meta := idtData[cleanWID]

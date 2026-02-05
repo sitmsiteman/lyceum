@@ -472,3 +472,36 @@ func (p *Parser) formatCitation() string {
 	}
 	return strings.Join(pts, ".")
 }
+
+func (p *Parser) ExtractAllText() (string, error) {
+	_, err := p.File.Seek(0, 0)
+	if err != nil {
+		return "", err
+	}
+
+	var sb strings.Builder
+	buf := make([]byte, BlockSize)
+
+	for {
+		n, err := p.File.Read(buf)
+		if n > 0 {
+			blockData := buf[:n]
+			for _, b := range blockData {
+				if b < 0x80 {
+					sb.WriteByte(b)
+				} else {
+					sb.WriteByte('\n')
+				}
+			}
+		}
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return "", err
+		}
+	}
+
+	decoded := ToLatin(sb.String())
+	return decoded, nil
+}
