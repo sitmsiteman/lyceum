@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -30,6 +31,8 @@ type Parser struct {
 
 	IDTData     map[string]*WorkMetadata
 	CurrentMeta *WorkMetadata
+
+	SortedLevels []string
 }
 
 func NewParser(f *os.File) *Parser {
@@ -57,6 +60,29 @@ func (p *Parser) ResetInternalState() {
 	for k := range levelRank {
 		p.Levels[k] = &IDState{}
 	}
+}
+
+func (p *Parser) analyzeCitationLevels() {
+	if p.CurrentMeta == nil {
+		p.SortedLevels = []string{}
+		return
+	}
+
+	var levels []string
+	seen := make(map[string]bool)
+
+	for _, cit := range p.CurrentMeta.Citations {
+		if !seen[cit.LevelChar] {
+			levels = append(levels, cit.LevelChar)
+			seen[cit.LevelChar] = true
+		}
+	}
+
+	sort.Slice(levels, func(i, j int) bool {
+		return levelRank[levels[i]] < levelRank[levels[j]]
+	})
+
+	p.SortedLevels = levels
 }
 
 func (p *Parser) ExtractList(idtData map[string]*WorkMetadata) ([]string, error) {
@@ -112,6 +138,7 @@ func (p *Parser) ExtractWork(targetWorkID string) (string, error) {
 
 	if p.IDTData != nil {
 		p.CurrentMeta = p.IDTData[targetWorkID]
+		p.analyzeCitationLevels()
 	}
 
 	var sb strings.Builder
@@ -190,6 +217,7 @@ func (p *Parser) parseIDByte() bool {
 		return true
 	}
 	b := p.Buffer[p.Pos]
+
 	p.Pos++
 
 	left := (b >> 4) & 0x0F
@@ -229,20 +257,21 @@ func (p *Parser) parseIDByte() bool {
 	case 0xF: // Special
 		if right == 0xE {
 			return true
-		} // End Block
+		}
 		if right == 0x0 {
 			return true
-		} // End File
+		}
 		return false
 	}
 
-	var binaryVal int
-	var asciiVal string
+	const UnsetBinary = -999
+	binaryVal := UnsetBinary
+	asciiVal := ""
+	hasASCII := false
 
-	// Decode Value
 	switch right {
 	case 0x0:
-		binaryVal = -1 // Signal increment
+		binaryVal = -1 // Increment
 	case 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7:
 		binaryVal = int(right)
 	case 0x8:
@@ -250,36 +279,65 @@ func (p *Parser) parseIDByte() bool {
 	case 0x9:
 		binaryVal = p.readBin(1)
 		asciiVal = string(p.readChar())
+		hasASCII = true
 	case 0xA:
 		binaryVal = p.readBin(1)
 		asciiVal = p.readStr()
+		hasASCII = true
 	case 0xB:
 		binaryVal = p.readBin(2)
 	case 0xC:
 		binaryVal = p.readBin(2)
 		asciiVal = string(p.readChar())
+		hasASCII = true
 	case 0xD:
 		binaryVal = p.readBin(2)
 		asciiVal = p.readStr()
+		hasASCII = true
 	case 0xE:
 		asciiVal = string(p.readChar())
+		hasASCII = true
 	case 0xF:
-		binaryVal = 0
 		asciiVal = p.readStr()
+		hasASCII = true
 	}
 
 	if level != "" {
 		st := p.Levels[level]
+
 		oldActive := st.Active
 		oldBinary := st.Binary
 		oldASCII := st.ASCII
 
 		st.Active = true
+
 		if binaryVal == -1 {
 			st.Binary++
-		} else {
+			st.ASCII = ""
+		} else if binaryVal != UnsetBinary {
 			st.Binary = binaryVal
+			if !hasASCII {
+				st.ASCII = ""
+			}
+		}
+
+		if hasASCII {
 			st.ASCII = asciiVal
+		}
+
+		isTwoRank := false
+
+		if len(p.SortedLevels) == 2 {
+			if p.SortedLevels[0] == level {
+				isTwoRank = true
+			}
+		}
+
+		if isTwoRank && oldASCII == "a" {
+			if st.Binary == oldBinary+1 && st.ASCII == "" {
+				st.Binary = oldBinary // 숫자를 이전 숫자로 되돌림 (25 -> 24)
+				st.ASCII = "b"        // 접미사를 b로 설정
+			}
 		}
 
 		if !oldActive || st.Binary != oldBinary || st.ASCII != oldASCII {
@@ -373,6 +431,12 @@ func (p *Parser) formatCitation() string {
 		levelsToCheck = []string{"w", "x", "y", "z"}
 	}
 
+	isStephanus := (len(p.SortedLevels) == 3)
+	sectionLevel := ""
+	if isStephanus {
+		sectionLevel = p.SortedLevels[1]
+	}
+
 	for _, l := range levelsToCheck {
 		st := p.Levels[l]
 		if st == nil || !st.Active {
@@ -381,10 +445,12 @@ func (p *Parser) formatCitation() string {
 
 		s := st.ASCII
 		if st.Binary > 0 {
-			if len(st.ASCII) == 1 && st.ASCII[0] >= 'a' && st.ASCII[0] <= 'e' && st.Binary < 10 {
-				s = string(st.ASCII[0] + byte(st.Binary))
+			if isStephanus && l == sectionLevel && st.Binary >= 1 && st.Binary <= 5 {
+				if s == "" {
+					s = string('a' + byte(st.Binary-1))
+				}
 			} else {
-				s = strconv.Itoa(st.Binary) + st.ASCII
+				s = strconv.Itoa(st.Binary) + s
 			}
 		}
 
