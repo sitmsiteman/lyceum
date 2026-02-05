@@ -6,32 +6,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"tlgread/pkg/tlgcore"
 )
-
-func getAuthorName(path, tlgID string) string {
-	var prefixID string
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return "Unknown"
-	}
-
-	if len(tlgID) >= 3 {
-		prefixID = strings.ToUpper(tlgID[:3])
-	} else {
-		return "Unknown"
-	}
-
-	cleanID := fmt.Sprintf("%s%04s", prefixID, strings.TrimPrefix(strings.ToUpper(tlgID), prefixID))
-	re := regexp.MustCompile(fmt.Sprintf(`(?s)%s.*?&1(.*?)&`, cleanID))
-	m := re.FindSubmatch(data)
-	if len(m) > 1 {
-		return strings.TrimSpace(strings.Split(string(m[1]), "&")[0])
-	}
-	return tlgID
-}
 
 func main() {
 	fPath := flag.String("f", "", "TLG .txt")
@@ -61,7 +38,20 @@ func main() {
 	}
 
 	authPath := filepath.Join(dir, "authtab.dir")
-	author := getAuthorName(authPath, tlgID)
+	var author string = "Unknown Author"
+
+	records, err := tlgcore.ReadAuthorTable(authPath)
+	if err == nil {
+		targetID := strings.ToUpper(tlgID)
+		for _, rec := range records {
+			if strings.TrimSpace(rec.ID) == targetID {
+				author = rec.Name
+				break
+			}
+		}
+	} else {
+		fmt.Printf("Warning: Could not read author table: %v\n", err)
+	}
 
 	p := tlgcore.NewParser(f)
 	p.IDTData = idtData

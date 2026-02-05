@@ -41,6 +41,7 @@ var bcmHandlers = map[rune]bcmHandler{
 	'{': handleMarkupText,
 	'}': handleEndMarkupText, // Do I need this?
 	'<': handleTextFormatting,
+	'>': handleTextFormattingClose,
 	'"': handleQuotation,
 	'[': handleOpenBracket,
 	']': handleCloseBracket,
@@ -56,6 +57,7 @@ func handleGreek(runes []rune, start int, out *bytes.Buffer, isLat bool, inQuo b
 
 	switch command {
 	case "$1":
+		isLatin = false
 	case "$2":
 	case "$3":
 	case "$10":
@@ -143,6 +145,21 @@ func handleTextFormatting(runes []rune, start int, out *bytes.Buffer, isLat bool
 
 	switch command {
 	case "<":
+	default:
+	}
+
+	return nextIdx, isLatin, inQuot
+}
+
+// >
+func handleTextFormattingClose(runes []rune, start int, out *bytes.Buffer, isLat bool, inQuo bool) (newIdx int, isLatin bool, inQuot bool) {
+	command, nextIdx := parseCommand(runes, start)
+
+	inQuot = inQuo
+	isLatin = isLat
+
+	switch command {
+	case ">":
 	default:
 	}
 
@@ -344,9 +361,17 @@ func handleAddChar(runes []rune, start int, out *bytes.Buffer, isLat bool, inQuo
 }
 
 func ToGreek(s string) string {
+	return parseBetaCode(s, false)
+}
+
+func ToLatin(s string) string {
+	return parseBetaCode(s, true)
+}
+
+func parseBetaCode(s string, startLatin bool) string {
 	var out bytes.Buffer
 	upper := false
-	isLatin := false
+	isLatin := startLatin
 	inQuot := false
 
 	var pDiacritics string
@@ -396,7 +421,6 @@ func ToGreek(s string) string {
 				} else {
 					pDiacritics += d
 				}
-
 				continue
 			}
 		}
@@ -406,7 +430,6 @@ func ToGreek(s string) string {
 			pDiacritics = ""
 		}
 		wasBase = false
-
 		out.WriteRune(r)
 	}
 
@@ -501,39 +524,6 @@ func sortRunes(r []rune) {
 		}
 		r[j+1] = key
 	}
-}
-
-func ToLatin(s string) string {
-	var out bytes.Buffer
-
-	isLatin := true
-	inQuot := false
-
-	runes := []rune(s)
-	for i := 0; i < len(runes); i++ {
-		r := runes[i]
-
-		// TLG/PHI metadata uses bytes < 32 or > 127 for level updates.
-		if r < 32 || r > 126 {
-			continue
-		}
-
-		if r == '`' {
-			continue
-		}
-
-		if handler, exists := bcmHandlers[r]; exists {
-			nextIdx, _, quotState := handler(runes, i, &out, isLatin, inQuot)
-			i = nextIdx
-			inQuot = quotState
-			isLatin = true
-			continue
-		}
-
-		out.WriteRune(r)
-	}
-
-	return out.String()
 }
 
 func ToBetaCode(s string) string {
