@@ -105,31 +105,34 @@ func ReadIDT(path string) (map[string]*WorkMetadata, error) {
 			consumeID()
 			lastWorkIDInt = 0
 			lastWorkIDStr = ""
+			currentWork = nil
 
 		case 2: // New Work
-			if pos+4 > len(data) {
-				break
+			if pos+4 > len(data) { 
+				break 
 			}
 			pos += 4
 			idBytes := consumeID()
 
-			// 이전 상태를 바탕으로 새 ID 계산
-			newInt, newStr := DecodeWorkID(lastWorkIDInt, lastWorkIDStr, idBytes)
-			lastWorkIDInt = newInt
-			lastWorkIDStr = newStr
-
-			idStr := newStr
-			if newInt != 0 {
-				idStr = strconv.Itoa(newInt) + newStr
+					if len(idBytes) == 0 {
+				lastWorkIDInt++
+				lastWorkIDStr = ""
+			} else {
+				lastWorkIDInt, lastWorkIDStr = DecodeWorkID(lastWorkIDInt, lastWorkIDStr, idBytes)
 			}
-			if idStr == "" && len(idBytes) > 0 {
-				idStr = decodeSimpleASCII(idBytes)
+
+			idStr := lastWorkIDStr
+			if lastWorkIDInt != 0 {
+				idStr = strconv.Itoa(lastWorkIDInt) + lastWorkIDStr
+			}
+			
+			if idStr == "" || idStr == "0" {
+				if lastWorkIDInt == 0 { lastWorkIDInt = 1 }
+				idStr = strconv.Itoa(lastWorkIDInt)
 			}
 
 			currentWork = &WorkMetadata{ID: idStr}
-			if idStr != "" {
-				m[idStr] = currentWork
-			}
+			m[idStr] = currentWork
 
 		case 3:
 			pos += 2
@@ -147,9 +150,20 @@ func ReadIDT(path string) (map[string]*WorkMetadata, error) {
 			}
 			str := string(data[pos : pos+length])
 			pos += length
-			if subtype == 1 && currentWork != nil {
-				currentWork.Title = cleanString(str)
+			if subtype == 1 {
+				if currentWork != nil && currentWork.Title != "" {
+					lastWorkIDInt++
+					lastWorkIDStr = ""
+					idStr := strconv.Itoa(lastWorkIDInt)
+					currentWork = &WorkMetadata{ID: idStr}
+					m[idStr] = currentWork
+				}
+
+				if currentWork != nil {
+					currentWork.Title = cleanString(str)
+				}
 			}
+	
 		case 17: // Citations
 			subtype := data[pos]
 			pos += 2
@@ -184,12 +198,10 @@ func ReadIDT(path string) (map[string]*WorkMetadata, error) {
 	return m, nil
 }
 
-// [수정] DecodeWorkID: 이전 상태(prevInt, prevStr)를 받아 갱신된 ID 반환
 func DecodeWorkID(prevInt int, prevStr string, b []byte) (int, string) {
 	if len(b) == 0 {
 		return prevInt, prevStr
 	}
-	// 레거시 ASCII 처리
 	if len(b) >= 2 && b[0] == 0xEF && b[1] == 0x81 {
 		res := decodeSimpleASCII(b[2:])
 		if i, err := strconv.Atoi(res); err == nil {
@@ -225,14 +237,7 @@ func DecodeWorkID(prevInt int, prevStr string, b []byte) (int, string) {
 	for pos < len(b) {
 		val := b[pos]
 		pos++
-		left := (val >> 4) & 0x0F
 		right := val & 0x0F
-		isLevelB := false
-
-		if left == 0xE && pos < len(b) && (b[pos]&0x7F) == 1 {
-			isLevelB = true
-			pos++
-		}
 
 		var dInt int = -999
 		var dStr string
@@ -271,7 +276,6 @@ func DecodeWorkID(prevInt int, prevStr string, b []byte) (int, string) {
 			hasStr = true
 		}
 
-		if isLevelB {
 			if dInt == -1 {
 				currInt++
 				currStr = ""
@@ -284,7 +288,6 @@ func DecodeWorkID(prevInt int, prevStr string, b []byte) (int, string) {
 			if hasStr {
 				currStr = dStr
 			}
-		}
 	}
 	return currInt, currStr
 }

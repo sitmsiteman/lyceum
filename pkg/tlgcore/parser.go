@@ -437,7 +437,14 @@ func (p *Parser) formatCitation() string {
 		sectionLevel = p.SortedLevels[1]
 	}
 
+	seenLevel := make(map[string]bool)
+
 	for _, l := range levelsToCheck {
+
+		if seenLevel[l] {
+			continue
+		}
+
 		st := p.Levels[l]
 		if st == nil || !st.Active {
 			continue
@@ -456,6 +463,7 @@ func (p *Parser) formatCitation() string {
 
 		if s != "" {
 			pts = append(pts, s)
+			seenLevel[l] = true
 		}
 	}
 
