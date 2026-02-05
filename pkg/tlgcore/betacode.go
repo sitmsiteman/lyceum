@@ -145,6 +145,8 @@ func handleTextFormatting(runes []rune, start int, out *bytes.Buffer, isLat bool
 
 	switch command {
 	case "<":
+	case "<20":
+		out.WriteString("<")
 	default:
 	}
 
@@ -160,6 +162,8 @@ func handleTextFormattingClose(runes []rune, start int, out *bytes.Buffer, isLat
 
 	switch command {
 	case ">":
+	case ">20":
+		out.WriteString(">")
 	default:
 	}
 
