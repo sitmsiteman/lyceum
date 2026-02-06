@@ -78,7 +78,6 @@ func ReadIDT(path string) (map[string]*WorkMetadata, error) {
 	pos := 0
 	var currentWork *WorkMetadata
 
-	// [수정] Work ID의 이전 상태를 추적 (델타 업데이트 지원)
 	lastWorkIDInt := 0
 	lastWorkIDStr := ""
 

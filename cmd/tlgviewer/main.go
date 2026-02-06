@@ -121,7 +121,6 @@ func main() {
 						fmt.Printf("%-15s [%s]: %s\n", field.Label, field.Tag, field.Value)
 					}
 				}
-				fmt.Println("")
 			}
 
 			if biblioText == "" && len(metaFields) == 0 {

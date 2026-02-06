@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flag"
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"regexp"
@@ -12,11 +12,11 @@ import (
 
 func main() {
 
-        xPath := flag.String("f", "grc.lsj.xml", "file path for dictionary xml file")
-        iPath := flag.String("o", "lsj.idt", "file path for export index file")
-        flag.Parse()
+	xPath := flag.String("f", "grc.lsj.xml", "file path for dictionary xml file")
+	iPath := flag.String("o", "lsj.idt", "file path for export index file")
+	flag.Parse()
 
-        xmlPath := *xPath
+	xmlPath := *xPath
 	indexPath := *iPath
 
 	f, err := os.Open(xmlPath)

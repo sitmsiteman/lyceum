@@ -52,7 +52,6 @@ func decodeAuthorEntry(data []byte, start int) (AuthorRecord, int) {
 
 		if b == 0xFF {
 			i++
-			// Consume any padding 0xFF
 			for i < len(data) && data[i] == 0xFF {
 				i++
 			}

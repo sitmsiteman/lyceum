@@ -127,7 +127,6 @@ func lookupLSJ(xmlPath string, rawLemma string, lsjIndex map[string]int64, seenO
 		}
 	}
 
-	// Check the base key (e.g., "legw")
 	if val, ok := lsjIndex[strictKey]; ok {
 		addUnique(val)
 	}
@@ -146,11 +145,10 @@ func lookupLSJ(xmlPath string, rawLemma string, lsjIndex map[string]int64, seenO
 		if val, ok := lsjIndex[fuzzyKey]; ok {
 			addUnique(val)
 		} else {
-			// Prefix scan fallback
 			for k, off := range lsjIndex {
 				if strings.HasPrefix(k, fuzzyKey) {
 					addUnique(off)
-					break // Stop after first fuzzy match
+					break
 				}
 			}
 		}
@@ -217,39 +215,29 @@ func LoadLSJIndex(path string) map[string]int64 {
 }
 
 func processSense(rawXml string) string {
-	// 1. Convert Greek tags to Unicode Greek first
 	reForeign := regexp.MustCompile(`<foreign lang="greek">([^<]+)</foreign>`)
 	processed := reForeign.ReplaceAllStringFunc(rawXml, func(match string) string {
 		code := reForeign.FindStringSubmatch(match)[1]
 		return tlgcore.ToGreek(code)
 	})
 
-	// 2. Structural Replacements: Turn tags into layout markers
-	// Treat each sense as a new paragraph with a newline
 	processed = strings.ReplaceAll(processed, "<sense", "\n\n  • <sense")
-
-	// Ensure bibliographic references have a space after them
 	processed = strings.ReplaceAll(processed, "</bibl>", " ")
 	processed = strings.ReplaceAll(processed, "</cit>", " ")
 
-	// 3. Strip all remaining XML tags
 	stripTags := regexp.MustCompile("<[^>]*>")
-	clean := stripTags.ReplaceAllString(processed, "")
 
-	// 4. Decode XML entities
+	clean := stripTags.ReplaceAllString(processed, "")
 	clean = strings.ReplaceAll(clean, "&gt;", ">")
 	clean = strings.ReplaceAll(clean, "&lt;", "<")
 	clean = strings.ReplaceAll(clean, "&amp;", "&")
 	clean = strings.ReplaceAll(clean, "&quot;", "\"")
 
-	// 5. Clean up horizontal whitespace
-	// We preserve the double newlines we created, but collapse extra spaces on lines
 	lines := strings.Split(clean, "\n")
 	var finalLines []string
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed != "" {
-			// Collapse multiple spaces within the line
 			reSpace := regexp.MustCompile(`\s+`)
 			finalLines = append(finalLines, reSpace.ReplaceAllString(trimmed, " "))
 		}
@@ -273,7 +261,7 @@ func main() {
 
 	searchWord := *wordRaw
 	for _, r := range *wordRaw {
-		if r > 127 { // Simple check for non-ASCII
+		if r > 127 {
 			searchWord = tlgcore.ToBetaCode(*wordRaw)
 			break
 		}
@@ -316,8 +304,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Morphology not found.")
 	}
-
-	// Output Morph and then LSJ
 
 	seenLSJEntries := make(map[int64]bool)
 

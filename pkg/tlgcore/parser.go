@@ -203,7 +203,6 @@ func (p *Parser) getCurrentWorkID() string {
 		return strconv.Itoa(st.Binary)
 	}
 	if st.ASCII != "" {
-		// Try to parse ASCII as int for normalization (e.g. "001" -> "1")
 		if val, err := strconv.Atoi(st.ASCII); err == nil {
 			return strconv.Itoa(val)
 		}
@@ -335,8 +334,8 @@ func (p *Parser) parseIDByte() bool {
 
 		if isTwoRank && oldASCII == "a" {
 			if st.Binary == oldBinary+1 && st.ASCII == "" {
-				st.Binary = oldBinary // 숫자를 이전 숫자로 되돌림 (25 -> 24)
-				st.ASCII = "b"        // 접미사를 b로 설정
+				st.Binary = oldBinary
+				st.ASCII = "b"
 			}
 		}
 

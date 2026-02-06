@@ -169,7 +169,6 @@ func main() {
 	fmt.Println("Generating UnicodeComposition...")
 	buf.WriteString("var UnicodeComposition = map[string]rune{\n")
 	for _, e := range compEntries {
-		// Key is string, Value is Rune (Hex)
 		buf.WriteString(fmt.Sprintf("\t%q: %#x,\n", e.key, e.val))
 	}
 	buf.WriteString("}\n")
